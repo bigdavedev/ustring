@@ -29,7 +29,7 @@ public:
     template<encoding_t> using encoding_type;
 
     ustring()    
-	
+    
     ustring(const ustring& src);
     ustring(ustring&& src);
 
@@ -38,7 +38,7 @@ public:
     template<character T> explicit ustring(const T* src);
     template<character T> ustring(const T* src, size_t);
 
-	template<character T> 
+    template<character T> 
     ustring(const basic_string<T>& src, size_t pos = 0, size_t count = npos);
     template<character T> 
     ustring(basic_string<T>&& src, size_t pos = 0, size_t count = npos);
@@ -47,7 +47,7 @@ public:
     
     ustring(const byte* src, locale& loc);
     ustring(const byte* src, size_t count, locale& loc);
-	ustring(const string& src, locale& loc);
+    ustring(const string& src, locale& loc);
 
     ~ustring();
 
@@ -73,11 +73,11 @@ public:
     pair<iterator, iterator> find_ends(const ustring& pattern) const;
     iterator find(const ustring& pattern) const;
     pair<iterator, iterator> rfind_ends(const ustring& pattern) const;
-	iterator rfind(const ustring& pattern) const;
+    iterator rfind(const ustring& pattern) const;
 
-	bool contains(const ustring& pattern) const;
-	bool starts_with(const ustring& pattern) const;
-	bool ends_with(const ustring& pattern) const;
+    bool contains(const ustring& pattern) const;
+    bool starts_with(const ustring& pattern) const;
+    bool ends_with(const ustring& pattern) const;
 
     ustring substr(const iterator& start, const iterator& end) const;
     ustring substr(const pair<iterator, iterator>&) const;
@@ -93,10 +93,10 @@ public:
     std::u32string u32string() const;
 
     encoding_t encoding() const;
-	template<character T> const T* data() const;
+    template<character T> const T* data() const;
 
-	const byte* data() const;
-	size_t bytes() const;
+    const byte* data() const;
+    size_t bytes() const;
 
     template<character T> 
     size_t estimated_size() const; 
@@ -124,7 +124,7 @@ ustring has a lot of constructors to make it easy to use as a vocabulary type. M
 
 ```C++
     ustring()    
-	
+    
     ustring(const ustring& src);
     ustring(ustring&& src);
 
@@ -133,7 +133,7 @@ ustring has a lot of constructors to make it easy to use as a vocabulary type. M
     template<character T> ustring(const T* src);
     template<character T> ustring(const T* src, size_t);
 
-	template<character T> 
+    template<character T> 
     ustring(const basic_string<T>& src, size_t pos = 0, size_t count = npos);
     template<character T> 
     ustring(basic_string<T>&& src, size_t pos = 0, size_t count = npos);
@@ -168,7 +168,7 @@ std::string myString = "Hej hopp";
 std::string_view hoppView(myString.data() + 4, 4);
 
 // Today version 2
-std::string_view myView = myString;		// Invoke cast operator in basic_string.
+std::string_view myView = myString;     // Invoke cast operator in basic_string.
 auto hoppView = myView.substr(4, 4);
 
 // I would like:
@@ -187,8 +187,8 @@ std::string myString = "Hej hopp";
 
 string_view get_hopp()
 {
-	auto hopp = myString.substr(4, 4);
-	return hopp;
+    auto hopp = myString.substr(4, 4);
+    return hopp;
 }
 ```
 
@@ -209,7 +209,7 @@ The constructor from `basic_string_view` does not have pos and size as it is so 
 ```C++
     ustring(const byte* src, locale& loc);
     ustring(const byte* src, size_t count, locale& loc);
-	ustring(const string& src, locale& loc);
+    ustring(const string& src, locale& loc);
 ```
 
 Constructors from `const byte*` have a `locale` parameter. The `byte` type is used to represent data of any locale so the locale at hand must be specified. These constructors must perform a conversion if the locale is not for the same encoding as any of the ones implicitly selected by one of the character types. If the implementation so chooses it can also implement a table lookup representation for the case of character sets like ISO/IEC 8859-1 (latin-1) which contain up to 256 Unicode code points. It would also be possible to implement 16 bit table lookup for encodings like UCS2, but as this is a subset of UTF-16 this seems unnecessary. Possibly there are other 16 bit encodings which can be handled by a table lookup.
@@ -368,17 +368,17 @@ The `advance()` member functions move the iterator by the given amount. As the s
 
 ```C++
 ustring myString = "Hej hopp";
-auto jIter = myString.find("j");	// Index == 2
-auto oIter = myString.rfind("o");	// Index == -4
+auto jIter = myString.find("j");    // Index == 2
+auto oIter = myString.rfind("o");   // Index == -4
 
 // Quick or slow depending on encoding
-auto distSlow = oIter - jIter;		
+auto distSlow = oIter - jIter;      
 
 // Quick or slow depending on encoding
 auto oFromStart = myString.begin().advance(oIter);
 
 // Quick as both indices are from begin.
-auto distQuick = oFromStart - jIter;   				
+auto distQuick = oFromStart - jIter;                
 ```
 
 ### Are iterators to be safe for destruction of ustring?
@@ -453,7 +453,7 @@ strong_ordering case_insensitive_compare(const ustring& lhs, const ustring& rhs,
 
 ustring trim_front(const ustring& src);
 ustring trim_back(const ustring& src);
-ustring trim(const ustring& src);		// Trim both ends.
+ustring trim(const ustring& src);       // Trim both ends.
 
 ustring tolower(const ustring& src, locale& loc);
 ustring toupper(const ustring& src, locale& loc);
@@ -510,7 +510,7 @@ distance()
 
 There could be more. Note that the corresponding customization points in the ranges:: namespace forwards to these functions by default (I assume). There is also a three parameter `ranges::advance()` overload which corresponds to the two parameter `advance()` of ustring::iterator in that its third parameter is a sentinel beyond which no further advancing occurs. This overload returns the number of steps that _could not_ be taken due to hitting the sentinel, which would be very impractical for ustring where you mainly want to measure the distance between iterators this way. 
 
-**Rant:** Intuitively I think this is a mistake in the ranges::advance() specification, it would be more useful to return the number of steps actually taken also in this case, as you would normally have to write numeric_limits<size_t>::max() as the n parameter and then subtract the result from numeric_limits<size_t>::max() to get the number of steps taken.	
+**Rant:** Intuitively I think this is a mistake in the ranges::advance() specification, it would be more useful to return the number of steps actually taken also in this case, as you would normally have to write numeric_limits<size_t>::max() as the n parameter and then subtract the result from numeric_limits<size_t>::max() to get the number of steps taken.  
 
 Extraction
 ----------
