@@ -1,0 +1,43 @@
+
+
+
+namespace std {
+
+    // Bidirectional iterator to a sequence of unicode code points represented in the different
+    // character encodings.
+    template<typename C> class unicode_iterator {
+    public:
+        unicode_iterator(const C* data);
+        char32_t operator*();
+        unicode_iterator& operator++();
+        unicode_iterator& operator++(int);
+        unicode_iterator& operator--();
+        unicode_iterator& operator--(int);
+
+        // Advance by any count is often faster than incrementing.
+        unicode_iterator& operator+(ptrdiff_t);
+        unicode_iterator& operator-(ptrdiff_t);
+        
+        unicode_iterator& operator+=(ptrdiff_t);
+        unicode_iterator& operator-=(ptrdiff_t);
+
+        friend strong_ordering operator<=>(const unicode_iterator&);
+    };
+
+    template<> class unicode_iterator<char32_t> {
+    };
+
+    // Tricky as we can't check for buffer overrun before we already have the last character.
+    // So all overloads must buffer it probably.
+    template<typename C> class unicode_output_iterator {
+        unicode_output_iterator(C* dest);
+        char32_t& operator*();  // This can return a reference to a member, written in operator++.
+
+        unicode_output_iterator& operator++();
+        unicode_output_iterator& operator++(int);
+
+        // Special function which returns false if the value set by assigning to *i fits in the buffer if it ends at end.
+        // This can hardly be operator== as it is not communitive.
+        bool check(const C* end);
+    };
+}
