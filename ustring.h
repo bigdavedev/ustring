@@ -2,9 +2,11 @@
 
 #include <cctype>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <atomic>
 #include <cassert>
+#include <limits>
 #include <vector>
 #include <span>
 #include <locale>
@@ -538,10 +540,15 @@ struct ustring::impl {
     };
 };
 
+namespace detail
+{
+    template <typename... Args>
+    constexpr bool dependent_false = false;
+}
 
 //////////////// Method implementations ////////////////
 
-template<character T> static constexpr ustring::encoding_t ustring::encoding_of()
+template<character T> constexpr ustring::encoding_t ustring::encoding_of()
 {
     if constexpr(is_same_v<T, char>)
         return narrow;
@@ -554,7 +561,8 @@ template<character T> static constexpr ustring::encoding_t ustring::encoding_of(
     else if constexpr(is_same_v<T, char32_t>)
         return utf32;
     else
-        static_assert(false, "This implementation has another std::character type not implemented by ustring");
+        static_assert(detail::dependent_false<T>,
+                      "This implementation has another std::character type not implemented by ustring");
 }
 
 template<> struct ustring::encoding_type_detail<ustring::narrow> {
